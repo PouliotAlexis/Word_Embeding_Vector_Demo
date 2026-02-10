@@ -18,6 +18,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
+@app.on_event("startup")
+async def startup_event():
+    """Initialize the model on startup."""
+    print("Pre-loading model...")
+    get_manager()
+    print("Model loaded successfully!")
+
 # CORS for frontend
 app.add_middleware(
     CORSMiddleware,
