@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Embedding Explorer</title>
+    <meta name="description" content="Interactive word embedding visualization and exploration tool">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- D3.js for graphs -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- Three.js for 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Background Effects -->
+    <div class="bg-gradient"></div>
+    <div class="bg-particles" id="particles"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">🧠</span>
+            <h1>Word Embedding Explorer</h1>
+        </div>
+        <div class="header-status" id="status">
+            <span class="status-dot"></span>
+            <span class="status-text">Connecting...</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <button class="nav-btn active" data-section="arithmetic">
+            <span class="nav-icon">➕</span>
+            <span>Arithmetic</span>
+        </button>
+        <button class="nav-btn" data-section="synonyms">
+            <span class="nav-icon">📖</span>
+            <span>Synonyms</span>
+        </button>
+        <button class="nav-btn" data-section="neighbors">
+            <span class="nav-icon">🔍</span>
+            <span>Neighbors</span>
+        </button>
+        <button class="nav-btn" data-section="graph">
+            <span class="nav-icon">🕸️</span>
+            <span>Graph</span>
+        </button>
+        <button class="nav-btn" data-section="analogy">
+            <span class="nav-icon">🎯</span>
+            <span>Analogy</span>
+        </button>
+        <button class="nav-btn" data-section="journey">
+            <span class="nav-icon">🚀</span>
+            <span>Journey</span>
+        </button>
+        <button class="nav-btn" data-section="cloud">
+            <span class="nav-icon">☁️</span>
+            <span>3D Cloud</span>
+        </button>
+        <button class="nav-btn" data-section="clustering">
+            <span class="nav-icon">🗂️</span>
+            <span>Clustering</span>
+        </button>
+        <button class="nav-btn" data-section="search">
+            <span class="nav-icon">🔍</span>
+            <span>Search</span>
+        </button>
+        <button class="nav-btn" data-section="wheel">
+            <span class="nav-icon">🎡</span>
+            <span>Wheel</span>
+        </button>
+        <button class="nav-btn" data-section="inspector">
+            <span class="nav-icon">🔬</span>
+            <span>Inspector</span>
+        </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Arithmetic Section -->
+        <section class="section active" id="section-arithmetic">
+            <div class="section-header">
+                <h2>Word Arithmetic</h2>
+                <p>Add and subtract words to discover semantic relationships</p>
+            </div>
+
+            <div class="card">
+                <div class="arithmetic-builder">
+                    <div class="arithmetic-row">
+                        <div class="word-input-group positive">
+                            <label>Positive Words (+)</label>
+                            <div class="word-tags" id="positive-tags"></div>
+                            <input type="text" id="positive-input" placeholder="Type word and press Enter"
+                                class="word-input">
+                        </div>
+                        <div class="operator">−</div>
+                        <div class="word-input-group negative">
+                            <label>Negative Words (−)</label>
+                            <div class="word-tags" id="negative-tags"></div>
+                            <input type="text" id="negative-input" placeholder="Type word and press Enter"
+                                class="word-input">
+                        </div>
+                    </div>
+
+                    <div class="example-presets">
+                        <span class="preset-label">Try:</span>
+                        <button class="preset-btn" data-positive="king,woman" data-negative="man">👑 king - man +
+                            woman</button>
+                        <button class="preset-btn" data-positive="paris,germany" data-negative="france">🗼 paris -
+                            france + germany</button>
+                        <button class="preset-btn" data-positive="biggest,small" data-negative="big">📏 biggest - big +
+                            small</button>
+                    </div>
+
+                    <button class="primary-btn" id="arithmetic-btn">
+                        <span>Calculate</span>
+                        <span class="btn-icon">→</span>
+                    </button>
+                </div>
+
+                <div class="results-container" id="arithmetic-results"></div>
+            </div>
+        </section>
+
+        <!-- Synonyms Section -->
+        <section class="section" id="section-synonyms">
+            <div class="section-header">
+                <h2>Synonym Finder</h2>
+                <p>Discover words with similar meanings</p>
+            </div>
+
+            <div class="card">
+                <div class="input-row">
+                    <div class="input-group flex-grow">
+                        <label for="synonyms-word">Enter a word</label>
+                        <input type="text" id="synonyms-word" placeholder="e.g., happy, fast, big..."
+                            class="text-input">
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="synonyms-filter" checked>
+                            Filter same-root words
+                        </label>
+                    </div>
+                    <button class="primary-btn" id="synonyms-btn">
+                        <span>Find Synonyms</span>
+                    </button>
+                </div>
+
+                <div class="example-presets">
+                    <span class="preset-label">Try:</span>
+                    <button class="preset-btn synonyms-preset" data-word="happy">😊 happy</button>
+                    <button class="preset-btn synonyms-preset" data-word="beautiful">✨ beautiful</button>
+                    <button class="preset-btn synonyms-preset" data-word="fast">⚡ fast</button>
+                    <button class="preset-btn synonyms-preset" data-word="smart">🧠 smart</button>
+                    <button class="preset-btn synonyms-preset" data-word="angry">😠 angry</button>
+                </div>
+
+                <div class="results-container" id="synonyms-results"></div>
+            </div>
+        </section>
+
+        <!-- Neighbors Section -->
+        <section class="section" id="section-neighbors">
+            <div class="section-header">
+                <h2>Neighborhood Explorer</h2>
+                <p>Find words within a semantic radius</p>
+            </div>
+
+            <div class="card">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="neighbors-word">Target Word</label>
+                        <input type="text" id="neighbors-word" placeholder="Enter a word" class="text-input">
+                    </div>
+                    <div class="input-group">
+                        <label for="neighbors-distance">Max Distance</label>
+                        <input type="range" id="neighbors-distance" min="0.1" max="1" step="0.05" value="0.4">
+                        <span class="range-value" id="distance-value">0.4</span>
+                    </div>
+                    <button class="primary-btn" id="neighbors-btn">
+                        <span>Explore</span>
+                    </button>
+                </div>
+
+                <div class="visualization-container">
+                    <div id="neighbors-viz"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Graph Section -->
+        <section class="section" id="section-graph">
+            <div class="section-header">
+                <h2>Connection Graph</h2>
+                <p>Visualize semantic paths between words</p>
+            </div>
+
+            <div class="card">
+                <div class="input-row">
+                    <div class="input-group flex-grow">
+                        <label>Words to Connect</label>
+                        <div class="word-tags" id="graph-tags"></div>
+                        <input type="text" id="graph-input" placeholder="Add words (min 2)" class="word-input">
+                    </div>
+                    <button class="primary-btn" id="graph-btn">
+                        <span>Build Graph</span>
+                    </button>
+                </div>
+
+                <div class="example-presets">
+                    <span class="preset-label">Try:</span>
+                    <button class="preset-btn graph-preset" data-words="cat,dog,bird,fish">🐾 Animals</button>
+                    <button class="preset-btn graph-preset" data-words="happy,sad,angry,calm">😊 Emotions</button>
+                    <button class="preset-btn graph-preset" data-words="apple,microsoft,google,amazon">💻 Tech</button>
+                </div>
+
+                <div class="graph-container">
+                    <svg id="graph-svg"></svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analogy Section -->
+        <section class="section" id="section-analogy">
+            <div class="section-header">
+                <h2>Word Analogies</h2>
+                <p>A is to B as C is to ?</p>
+            </div>
+
+            <div class="card">
+                <div class="analogy-builder">
+                    <div class="analogy-item">
+                        <input type="text" id="analogy-a" placeholder="man" class="analogy-input">
+                        <span class="analogy-label">is to</span>
+                    </div>
+                    <div class="analogy-item">
+                        <input type="text" id="analogy-b" placeholder="woman" class="analogy-input">
+                        <span class="analogy-label">as</span>
+                    </div>
+                    <div class="analogy-item">
+                        <input type="text" id="analogy-c" placeholder="king" class="analogy-input">
+                        <span class="analogy-label">is to</span>
+                    </div>
+                    <div class="analogy-item result">
+                        <div class="analogy-result" id="analogy-result">?</div>
+                    </div>
+                </div>
+
+                <div class="example-presets">
+                    <span class="preset-label">Try:</span>
+                    <button class="preset-btn analogy-preset" data-a="man" data-b="woman" data-c="king">👑
+                        Gender</button>
+                    <button class="preset-btn analogy-preset" data-a="france" data-b="paris" data-c="japan">🗾
+                        Capitals</button>
+                    <button class="preset-btn analogy-preset" data-a="walk" data-b="walked" data-c="run">🏃
+                        Tense</button>
+                </div>
+
+                <button class="primary-btn" id="analogy-btn">
+                    <span>Solve Analogy</span>
+                    <span class="btn-icon">→</span>
+                </button>
+
+                <div class="results-container" id="analogy-results"></div>
+            </div>
+        </section>
+
+        <!-- Journey Section -->
+        <section class="section" id="section-journey">
+            <div class="section-header">
+                <h2>Semantic Journey</h2>
+                <p>Watch words transform through embedding space</p>
+            </div>
+
+            <div class="card">
+                <div class="journey-setup">
+                    <div class="input-group">
+                        <label>Start Word</label>
+                        <input type="text" id="journey-start" placeholder="love" class="text-input">
+                    </div>
+                    <div class="journey-arrow">→</div>
+                    <div class="input-group">
+                        <label>End Word</label>
+                        <input type="text" id="journey-end" placeholder="hate" class="text-input">
+                    </div>
+                    <button class="primary-btn" id="journey-btn">
+                        <span>Start Journey</span>
+                    </button>
+                </div>
+
+                <div class="example-presets">
+                    <span class="preset-label">Try:</span>
+                    <button class="preset-btn journey-preset" data-start="love" data-end="hate">❤️→💔 Love to
+                        Hate</button>
+                    <button class="preset-btn journey-preset" data-start="cat" data-end="dog">🐱→🐕 Cat to Dog</button>
+                    <button class="preset-btn journey-preset" data-start="science" data-end="art">🔬→🎨 Science to
+                        Art</button>
+                </div>
+
+                <div class="journey-container">
+                    <div class="journey-timeline" id="journey-timeline"></div>
+                    <div class="journey-player">
+                        <input type="range" id="journey-slider" min="0" max="10" value="0" class="journey-range">
+                        <button class="play-btn" id="journey-play">▶</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3D Cloud Section -->
+        <section class="section" id="section-cloud">
+            <div class="section-header">
+                <h2>3D Word Cloud</h2>
+                <p>Explore word embeddings in three dimensions</p>
+            </div>
+
+            <div class="card cloud-card">
+                <div class="input-row">
+                    <div class="input-group flex-grow">
+                        <label>Seed Words</label>
+                        <div class="word-tags" id="cloud-tags"></div>
+                        <input type="text" id="cloud-input" placeholder="Add seed words" class="word-input">
+                    </div>
+                    <button class="primary-btn" id="cloud-btn">
+                        <span>Generate Cloud</span>
+                    </button>
+                </div>
+
+                <div class="example-presets">
+                    <span class="preset-label">Try:</span>
+                    <button class="preset-btn cloud-preset" data-words="computer,phone,tablet,laptop">💻
+                        Technology</button>
+                    <button class="preset-btn cloud-preset" data-words="red,blue,green,yellow">🎨 Colors</button>
+                    <button class="preset-btn cloud-preset" data-words="monday,friday,weekend,holiday">📅 Time</button>
+                </div>
+
+                <div class="cloud-container" id="cloud-container"></div>
+                <div class="cloud-controls">
+                    <span class="control-hint">🖱️ Drag to rotate • Scroll to zoom</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Clustering Section -->
+        <section class="section" id="section-clustering">
+            <div class="section-header">
+                <h2>Word Clustering</h2>
+                <p>Group words automatically by semantic similarity</p>
+            </div>
+
+            <div class="card">
+                <div class="input-row">
+                    <div class="input-group flex-grow">
+                        <label>Words to cluster</label>
+                        <div class="word-tags" id="clustering-tags"></div>
+                        <input type="text" id="clustering-input" placeholder="Add words to cluster" class="word-input">
+                    </div>
+                    <div class="input-group">
+                        <label for="clustering-count">Clusters</label>
+                        <input type="range" id="clustering-count" min="2" max="6" value="3">
+                        <span class="range-value" id="clustering-count-value">3</span>
+                    </div>
+                    <button class="primary-btn" id="clustering-btn">
+                        <span>Cluster</span>
+                    </button>
+                </div>
+
+                <div class="example-presets">
+                    <span class="preset-label">Try:</span>
+                    <button class="preset-btn clustering-preset"
+                        data-words="dog,cat,car,bus,apple,banana,happy,sad,tree,flower,plane,train,orange,grape,angry,excited">🔀
+                        Mixed</button>
+                    <button class="preset-btn clustering-preset"
+                        data-words="doctor,nurse,hospital,patient,teacher,student,school,classroom,chef,restaurant,kitchen,waiter">👔
+                        Professions</button>
+                </div>
+
+                <div class="clustering-results" id="clustering-results"></div>
+            </div>
+        </section>
+
+        <!-- Semantic Search Section -->
+        <section class="section" id="section-search">
+            <div class="section-header">
+                <h2>Semantic Search</h2>
+                <p>Find related words using natural queries</p>
+            </div>
+
+            <div class="card">
+                <div class="input-row">
+                    <div class="input-group flex-grow">
+                        <label for="search-query">Search query (words or phrase)</label>
+                        <input type="text" id="search-query" placeholder="e.g., 'fast car' or 'happy celebration'"
+                            class="text-input">
+                    </div>
+                    <button class="primary-btn" id="search-btn">
+                        <span>Search</span>
+                    </button>
+                </div>
+
+                <div class="example-presets">
+                    <span class="preset-label">Try:</span>
+                    <button class="preset-btn search-preset" data-query="fast car">🏎️ fast car</button>
+                    <button class="preset-btn search-preset" data-query="beautiful sunset">🌅 beautiful sunset</button>
+                    <button class="preset-btn search-preset" data-query="artificial intelligence">🤖 artificial
+                        intelligence</button>
+                    <button class="preset-btn search-preset" data-query="delicious food">🍕 delicious food</button>
+                </div>
+
+                <div class="results-container" id="search-results"></div>
+            </div>
+        </section>
+
+        <!-- Relationships Wheel Section -->
+        <section class="section" id="section-wheel">
+            <div class="section-header">
+                <h2>Relationships Wheel</h2>
+                <p>Explore word connections by relationship strength</p>
+            </div>
+
+            <div class="card">
+                <div class="input-row">
+                    <div class="input-group flex-grow">
+                        <label for="wheel-word">Center word</label>
+                        <input type="text" id="wheel-word" placeholder="Enter a word" class="text-input">
+                    </div>
+                    <button class="primary-btn" id="wheel-btn">
+                        <span>Explore</span>
+                    </button>
+                </div>
+
+                <div class="example-presets">
+                    <span class="preset-label">Try:</span>
+                    <button class="preset-btn wheel-preset" data-word="love">❤️ love</button>
+                    <button class="preset-btn wheel-preset" data-word="science">🔬 science</button>
+                    <button class="preset-btn wheel-preset" data-word="music">🎵 music</button>
+                    <button class="preset-btn wheel-preset" data-word="money">💰 money</button>
+                </div>
+
+                <div class="wheel-container" id="wheel-container"></div>
+            </div>
+        </section>
+
+        <!-- Vector Inspector Section -->
+        <section class="section" id="section-inspector">
+            <div class="section-header">
+                <h2>Vector Inspector</h2>
+                <p>Visualize the 100-dimensional embedding of any word</p>
+            </div>
+
+            <div class="card">
+                <div class="input-row">
+                    <div class="input-group flex-grow">
+                        <label for="inspector-word">Word to inspect</label>
+                        <input type="text" id="inspector-word" placeholder="Enter a word" class="text-input">
+                    </div>
+                    <div class="input-group flex-grow">
+                        <label for="inspector-compare">Compare with (optional)</label>
+                        <input type="text" id="inspector-compare" placeholder="Another word" class="text-input">
+                    </div>
+                    <button class="primary-btn" id="inspector-btn">
+                        <span>Inspect</span>
+                    </button>
+                </div>
+
+                <div class="example-presets">
+                    <span class="preset-label">Try:</span>
+                    <button class="preset-btn inspector-preset" data-word="king" data-compare="queen">👑 king vs
+                        queen</button>
+                    <button class="preset-btn inspector-preset" data-word="cat" data-compare="dog">🐱 cat vs
+                        dog</button>
+                    <button class="preset-btn inspector-preset" data-word="happy" data-compare="sad">😊 happy vs
+                        sad</button>
+                    <button class="preset-btn inspector-preset" data-word="computer" data-compare="">💻
+                        computer</button>
+                </div>
+
+                <div class="inspector-results" id="inspector-results"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading">
+        <div class="loading-spinner"></div>
+        <span class="loading-text">Processing...</span>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toasts"></div>
+
+    <script src="app.js"></script>
+    <script src="visualizations.js"></script>
+</body>
+
+</html>
