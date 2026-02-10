@@ -1,6 +1,6 @@
 fastapi==0.109.0
 uvicorn[standard]==0.27.0
-gensim==4.3.2
+gensim>=4.3.3
 numpy==1.26.3
 scikit-learn==1.4.0
 networkx==3.2.1
