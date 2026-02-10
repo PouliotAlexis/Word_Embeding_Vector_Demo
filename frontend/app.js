@@ -2,7 +2,7 @@
  * Word Embedding Explorer - Main Application
  */
 
-const API_BASE = 'http://localhost:8001/api';
+const API_BASE = '/api';
 
 // State management
 const state = {
