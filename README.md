@@ -11,9 +11,7 @@ pinned: false
 
 An interactive web application to visualize and explore word embeddings (GloVe/Word2Vec). This tool allows you to perform vector arithmetic, find semantic relationships, cluster words, and visualize high-dimensional data in 2D/3D.
 
-[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/PouliotAlexis/Word_Embeding_Vector_Demo) ![Word Embedding Demo](https://img.shields.io/badge/Status-Active-success) ![Python](https://img.shields.io/badge/Python-3.9%2B-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green)
-
-[🚀 **Launch Full Screen Demo**](https://pouliotalexis-word-embeding-vector-demo.hf.space)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/PouliotAlexis/Word_Embeding_Vector_Demo) [![Demo](https://img.shields.io/badge/Demo-Active-success)](https://pouliotalexis-word-embeding-vector-demo.hf.space) ![Python](https://img.shields.io/badge/Python-3.9%2B-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green)
 
 ## ✨ Features
 
