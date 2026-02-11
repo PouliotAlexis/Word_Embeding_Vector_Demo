@@ -95,6 +95,3 @@ The backend provides a REST API built with FastAPI.
 - **Frontend**: Vanilla JS, HTML5, CSS3, D3.js (Graphs), Three.js (3D Viz)
 - **Model**: GloVe (Global Vectors for Word Representation) - `glove-wiki-gigaword-100`
 
-## 📄 License
-
-MIT License
