@@ -14,9 +14,9 @@ An interactive web application to visualize and explore word embeddings (GloVe/W
 [![Open in Spaces](https://huggingface.co/datasets/huggingface/badges/raw/main/open-in-hf-spaces-sm.svg)](https://huggingface.co/spaces/PouliotAlexis/Word_Embeding_Vector_Demo)
 [🚀 **Launch Full Screen Demo**](https://pouliotalexis-word-embeding-vector-demo.hf.space)
 
-![Word Embedding Demo](https://img.shields.org/badge/Status-Active-success)
-![Python](https://img.shields.org/badge/Python-3.9+-blue)
-![FastAPI](https://img.shields.org/badge/FastAPI-0.109-green)
+![Word Embedding Demo](https://img.shields.io/badge/Status-Active-success)
+![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green)
 
 ## ✨ Features
 
