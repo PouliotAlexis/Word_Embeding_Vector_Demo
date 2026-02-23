@@ -263,19 +263,28 @@ class EmbeddingManager:
         path = [(w1, 1.0)]
         current = w1
         visited = {w1}
+        
+        # Liste basique de mots à éviter pour forcer des concepts plus forts
+        stop_words = {"when", "once", "then", "turned", "time", "day", "would", "could", "also", "have", "been"}
 
         for _ in range(max_steps):
             if current == w2:
                 break
+                
+            # NOUVEAUTÉ 1 : Le Seuil de Tolérance (Early Stop)
+            # Si on est déjà dans le champ lexical cible (> 55% de similarité), on arrête !
+            if current != w1 and self.model.similarity(current, w2) > 0.55:
+                break
 
-            # Get neighbors and find the one closest to target
-            neighbors = self.model.most_similar(current, topn=50)
+            # On prend un peu plus de voisins (100 au lieu de 50) car on va en filtrer certains
+            neighbors = self.model.most_similar(current, topn=100)
 
             best_word = None
             best_score = -1
 
             for word, sim in neighbors:
-                if word in visited:
+                # NOUVEAUTÉ 2 : On ignore les mots déjà visités, les petits mots et les mots de liaison
+                if word in visited or len(word) <= 3 or word in stop_words or not word.isalpha():
                     continue
 
                 # Score = similarity to target
