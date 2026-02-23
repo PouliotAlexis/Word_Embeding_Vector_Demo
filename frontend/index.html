@@ -43,21 +43,33 @@
 
     <!-- Navigation -->
     <nav class="nav">
-        <button class="nav-btn active" data-section="arithmetic">
+        <!-- On met l'Inspector en premier car c'est le début de ta présentation -->
+        <button class="nav-btn active" data-section="inspector">
+            <span class="nav-icon">🔬</span>
+            <span>Inspector</span>
+        </button>
+        <button class="nav-btn" data-section="arithmetic">
             <span class="nav-icon">➕</span>
             <span>Arithmetic</span>
         </button>
+        <button class="nav-btn" data-section="graph">
+            <span class="nav-icon">🕸️</span>
+            <span>Graph</span>
+        </button>
+        <button class="nav-btn" data-section="cloud">
+            <span class="nav-icon">☁️</span>
+            <span>3D Cloud</span>
+        </button>
+
+        <!-- On cache tout le reste avec des commentaires HTML -->
+        <!--
         <button class="nav-btn" data-section="synonyms">
-            <span class="nav-icon">📖</span>
+            <span class="nav-icon">�</span>
             <span>Synonyms</span>
         </button>
         <button class="nav-btn" data-section="neighbors">
             <span class="nav-icon">🔍</span>
             <span>Neighbors</span>
-        </button>
-        <button class="nav-btn" data-section="graph">
-            <span class="nav-icon">🕸️</span>
-            <span>Graph</span>
         </button>
         <button class="nav-btn" data-section="analogy">
             <span class="nav-icon">🎯</span>
@@ -66,10 +78,6 @@
         <button class="nav-btn" data-section="journey">
             <span class="nav-icon">🚀</span>
             <span>Journey</span>
-        </button>
-        <button class="nav-btn" data-section="cloud">
-            <span class="nav-icon">☁️</span>
-            <span>3D Cloud</span>
         </button>
         <button class="nav-btn" data-section="clustering">
             <span class="nav-icon">🗂️</span>
@@ -83,16 +91,13 @@
             <span class="nav-icon">🎡</span>
             <span>Wheel</span>
         </button>
-        <button class="nav-btn" data-section="inspector">
-            <span class="nav-icon">🔬</span>
-            <span>Inspector</span>
-        </button>
+        -->
     </nav>
 
     <!-- Main Content -->
     <main class="main">
         <!-- Arithmetic Section -->
-        <section class="section active" id="section-arithmetic">
+        <section class="section" id="section-arithmetic">
             <div class="section-header">
                 <h2>Word Arithmetic</h2>
                 <p>Add and subtract words to discover semantic relationships</p>
@@ -457,7 +462,7 @@
         </section>
 
         <!-- Vector Inspector Section -->
-        <section class="section" id="section-inspector">
+        <section class="section active" id="section-inspector">
             <div class="section-header">
                 <h2>Vector Inspector</h2>
                 <p>Visualize the 100-dimensional embedding of any word</p>
