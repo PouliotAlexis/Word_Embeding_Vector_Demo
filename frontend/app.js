@@ -864,24 +864,74 @@ function renderInspector(containerId, data) {
     // Comparison section
     let comparisonHtml = '';
     if (data.comparison) {
+        const comp = data.comparison;
+        const compMaxAbs = Math.max(
+            maxAbsValue,
+            Math.max(...comp.all_values.map(Math.abs))
+        );
+
+        const word1HeatmapHtml = data.all_values.map((v, i) => {
+            const normalized = v / compMaxAbs;
+            const color = v >= 0 ?
+                `rgba(16, 185, 129, ${Math.abs(normalized)})` :
+                `rgba(239, 68, 68, ${Math.abs(normalized)})`;
+            return `<div class="dim-cell" title="Dim ${i}: ${v.toFixed(4)}" style="background: ${color}"></div>`;
+        }).join('');
+
+        const word2HeatmapHtml = comp.all_values.map((v, i) => {
+            const normalized = v / compMaxAbs;
+            const color = v >= 0 ?
+                `rgba(16, 185, 129, ${Math.abs(normalized)})` :
+                `rgba(239, 68, 68, ${Math.abs(normalized)})`;
+            return `<div class="dim-cell" title="Dim ${i}: ${v.toFixed(4)}" style="background: ${color}"></div>`;
+        }).join('');
+
+        const diffHeatmapHtml = data.all_values.map((v, i) => {
+            const diff = v - comp.all_values[i];
+            const maxDiff = Math.max(...data.all_values.map((v2, j) => Math.abs(v2 - comp.all_values[j])));
+            const normalized = diff / maxDiff;
+            const color = diff >= 0 ?
+                `rgba(99, 102, 241, ${Math.abs(normalized)})` :
+                `rgba(236, 72, 153, ${Math.abs(normalized)})`;
+            return `<div class="dim-cell" title="Dim ${i}: Δ=${diff.toFixed(4)}" style="background: ${color}"></div>`;
+        }).join('');
+
         comparisonHtml = `
             <div class="inspector-section">
-                <h4>📊 Comparison with "${data.comparison.word}"</h4>
+                <h4>📊 Comparison with "${comp.word}"</h4>
                 <div class="comparison-similarity">
-                    Similarity: <span class="similarity-value">${(data.comparison.similarity * 100).toFixed(1)}%</span>
+                    Similarity: <span class="similarity-value">${(comp.similarity * 100).toFixed(1)}%</span>
                 </div>
+
+                <div class="heatmap-comparison">
+                    <div class="heatmap-row">
+                        <span class="heatmap-label">${data.word}</span>
+                        <div class="vector-heatmap">${word1HeatmapHtml}</div>
+                    </div>
+                    <div class="heatmap-row">
+                        <span class="heatmap-label">${comp.word}</span>
+                        <div class="vector-heatmap">${word2HeatmapHtml}</div>
+                    </div>
+                    <div class="heatmap-row">
+                        <span class="heatmap-label">Δ diff</span>
+                        <div class="vector-heatmap">${diffHeatmapHtml}</div>
+                    </div>
+                </div>
+                <p class="section-hint">Green = positive, Red = negative. Third row: Purple = word1 higher, Pink = word2 higher.</p>
+
+                <h4 style="margin-top: 1.5rem;">🔍 Biggest Differences</h4>
                 <div class="differences-grid">
-                    ${data.comparison.biggest_differences.slice(0, 10).map(d => `
+                    ${comp.biggest_differences.slice(0, 10).map(d => `
                         <div class="diff-item">
                             <span class="dim-label">Dim ${d.dim}</span>
                             <div class="diff-bar">
-                                <div class="diff-bar-word1" style="width: ${50 + (d.word1_value / maxAbsValue) * 50}%">
+                                <div class="diff-bar-word1" style="width: ${50 + (d.word1_value / compMaxAbs) * 50}%">
                                     ${data.word}: ${d.word1_value.toFixed(2)}
                                 </div>
                             </div>
                             <div class="diff-bar">
-                                <div class="diff-bar-word2" style="width: ${50 + (d.word2_value / maxAbsValue) * 50}%">
-                                    ${data.comparison.word}: ${d.word2_value.toFixed(2)}
+                                <div class="diff-bar-word2" style="width: ${50 + (d.word2_value / compMaxAbs) * 50}%">
+                                    ${comp.word}: ${d.word2_value.toFixed(2)}
                                 </div>
                             </div>
                         </div>

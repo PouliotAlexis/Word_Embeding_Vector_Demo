@@ -166,13 +166,29 @@ function renderGraph(graphData) {
 
     // Force simulation
     const simulation = d3.forceSimulation(nodes)
-        .force('link', d3.forceLink(links).id(d => d.id).distance(100).strength(0.5))
-        .force('charge', d3.forceManyBody().strength(-300))
+        .force('link', d3.forceLink(links).id(d => d.id)
+            .distance(d => 80 * (1 - d.weight + 0.3))  // Mots proches = liens courts
+            .strength(0.8))
+        .force('charge', d3.forceManyBody().strength(-200).distanceMax(300))
         .force('center', d3.forceCenter(width / 2, height / 2))
-        .force('collision', d3.forceCollide().radius(40));
+        .force('x', d3.forceX(width / 2).strength(0.05))
+        .force('y', d3.forceY(height / 2).strength(0.05))
+        .force('collision', d3.forceCollide().radius(45));
+
+    // Zoom behavior
+    const zoom = d3.zoom()
+        .scaleExtent([0.3, 3])
+        .on('zoom', (event) => {
+            rootG.attr('transform', event.transform);
+        });
+
+    svg.call(zoom);
+
+    // Root group for zoom/pan
+    const rootG = svg.append('g');
 
     // Draw links
-    const link = svg.append('g')
+    const link = rootG.append('g')
         .selectAll('line')
         .data(links)
         .enter()
@@ -183,7 +199,7 @@ function renderGraph(graphData) {
         .attr('stroke-opacity', d => 0.2 + d.weight * 0.5);
 
     // Draw nodes
-    const node = svg.append('g')
+    const node = rootG.append('g')
         .selectAll('.node-group')
         .data(nodes)
         .enter()
@@ -233,6 +249,30 @@ function renderGraph(graphData) {
         node.attr('transform', d => `translate(${d.x}, ${d.y})`);
     });
 
+    // Auto zoom-to-fit quand la simulation se stabilise
+    simulation.on('end', () => {
+        const padding = 50;
+        const bounds = rootG.node().getBBox();
+        const fullWidth = width;
+        const fullHeight = height;
+        const bWidth = bounds.width;
+        const bHeight = bounds.height;
+
+        const scale = Math.min(
+            (fullWidth - padding * 2) / bWidth,
+            (fullHeight - padding * 2) / bHeight,
+            1.5  // Ne pas zoomer trop
+        );
+
+        const tx = (fullWidth - bWidth * scale) / 2 - bounds.x * scale;
+        const ty = (fullHeight - bHeight * scale) / 2 - bounds.y * scale;
+
+        svg.transition().duration(750).call(
+            zoom.transform,
+            d3.zoomIdentity.translate(tx, ty).scale(scale)
+        );
+    });
+
     // Drag functions
     function dragstarted(event, d) {
         if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -269,15 +309,15 @@ function render3DCloud(points, seedWords) {
     }
 
     const width = container.clientWidth || 600;
-    const height = 450;
+    const height = 500;
 
     // Scene setup
     cloudScene = new THREE.Scene();
-    cloudScene.background = new THREE.Color(0x12121a);
+    cloudScene.background = new THREE.Color(0x0f0f1a);
 
-    // Camera
-    cloudCamera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
-    cloudCamera.position.z = 30;
+    // Camera - un peu plus de recul pour tout voir
+    cloudCamera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+    cloudCamera.position.set(0, 5, 35);
 
     // Renderer
     cloudRenderer = new THREE.WebGLRenderer({ antialias: true });
@@ -288,36 +328,39 @@ function render3DCloud(points, seedWords) {
     // Controls
     cloudControls = new THREE.OrbitControls(cloudCamera, cloudRenderer.domElement);
     cloudControls.enableDamping = true;
-    cloudControls.dampingFactor = 0.05;
+    cloudControls.dampingFactor = 0.08;
+    cloudControls.autoRotate = true;
+    cloudControls.autoRotateSpeed = 0.8;
 
-    // Normalize coordinates
+    // Normalize coordinates - plus d'espace entre les points
     const xExtent = d3.extent(points, d => d.x);
     const yExtent = d3.extent(points, d => d.y);
     const zExtent = d3.extent(points, d => d.z);
 
-    const scale = 20;
+    const scale = 25;
     const normalize = (val, extent) => {
         const range = extent[1] - extent[0];
         return range === 0 ? 0 : ((val - extent[0]) / range - 0.5) * scale;
     };
 
-    // Colors
-    const seedColor = new THREE.Color(0x8b5cf6);
-    const neighborColor = new THREE.Color(0x6366f1);
+    // Couleurs plus distinctives
+    const seedColor = new THREE.Color(0xf59e0b);     // Or pour les seeds
+    const neighborColor = new THREE.Color(0x8b5cf6);  // Violet pour les voisins
 
     // Create word objects
     const wordObjects = [];
+    const textSprites = [];
 
     points.forEach(point => {
         const isSeed = seedWords.includes(point.word);
-        const size = isSeed ? 0.6 : 0.3;
+        const size = isSeed ? 0.9 : 0.45;
 
         // Sphere
-        const geometry = new THREE.SphereGeometry(size, 16, 16);
+        const geometry = new THREE.SphereGeometry(size, 24, 24);
         const material = new THREE.MeshBasicMaterial({
             color: isSeed ? seedColor : neighborColor,
             transparent: true,
-            opacity: isSeed ? 1 : 0.7
+            opacity: isSeed ? 1 : 0.6
         });
         const sphere = new THREE.Mesh(geometry, material);
 
@@ -330,13 +373,13 @@ function render3DCloud(points, seedWords) {
         cloudScene.add(sphere);
         wordObjects.push(sphere);
 
-        // Add glow for seed words
+        // Glow pour les seed words
         if (isSeed) {
-            const glowGeometry = new THREE.SphereGeometry(size * 1.5, 16, 16);
+            const glowGeometry = new THREE.SphereGeometry(size * 2, 24, 24);
             const glowMaterial = new THREE.MeshBasicMaterial({
                 color: seedColor,
                 transparent: true,
-                opacity: 0.2
+                opacity: 0.15
             });
             const glow = new THREE.Mesh(glowGeometry, glowMaterial);
             glow.position.copy(sphere.position);
@@ -344,21 +387,55 @@ function render3DCloud(points, seedWords) {
         }
     });
 
-    // Create text sprites
+    // Create text sprites - plus hauts au dessus des sphères
     points.forEach(point => {
-        const sprite = createTextSprite(point.word, seedWords.includes(point.word));
+        const isSeed = seedWords.includes(point.word);
+        const sprite = createTextSprite(point.word, isSeed);
         sprite.position.x = normalize(point.x, xExtent);
-        sprite.position.y = normalize(point.y, yExtent) + 0.8;
+        sprite.position.y = normalize(point.y, yExtent) + (isSeed ? 1.5 : 1.0);
         sprite.position.z = normalize(point.z, zExtent);
         cloudScene.add(sprite);
+        textSprites.push(sprite);
     });
 
-    // Add connecting lines for seed words
-    const seedPoints = points.filter(p => seedWords.includes(p.word));
-    for (let i = 0; i < seedPoints.length; i++) {
-        for (let j = i + 1; j < seedPoints.length; j++) {
-            const p1 = seedPoints[i];
-            const p2 = seedPoints[j];
+    // Lignes de connexion seed -> voisins proches
+    const seedPts = points.filter(p => seedWords.includes(p.word));
+    const neighborPts = points.filter(p => !seedWords.includes(p.word));
+
+    seedPts.forEach(seed => {
+        const seedPos = new THREE.Vector3(
+            normalize(seed.x, xExtent),
+            normalize(seed.y, yExtent),
+            normalize(seed.z, zExtent)
+        );
+
+        // Trouver les 5 voisins les plus proches de ce seed
+        const distances = neighborPts.map(n => {
+            const nPos = new THREE.Vector3(
+                normalize(n.x, xExtent),
+                normalize(n.y, yExtent),
+                normalize(n.z, zExtent)
+            );
+            return { point: n, dist: seedPos.distanceTo(nPos), pos: nPos };
+        }).sort((a, b) => a.dist - b.dist).slice(0, 5);
+
+        distances.forEach(({ pos, dist }) => {
+            const geometry = new THREE.BufferGeometry().setFromPoints([seedPos, pos]);
+            const material = new THREE.LineBasicMaterial({
+                color: 0xf59e0b,
+                transparent: true,
+                opacity: Math.max(0.08, 0.3 - dist * 0.02)
+            });
+            const line = new THREE.Line(geometry, material);
+            cloudScene.add(line);
+        });
+    });
+
+    // Lignes entre seeds
+    for (let i = 0; i < seedPts.length; i++) {
+        for (let j = i + 1; j < seedPts.length; j++) {
+            const p1 = seedPts[i];
+            const p2 = seedPts[j];
 
             const geometry = new THREE.BufferGeometry().setFromPoints([
                 new THREE.Vector3(
@@ -374,9 +451,9 @@ function render3DCloud(points, seedWords) {
             ]);
 
             const material = new THREE.LineBasicMaterial({
-                color: 0x6366f1,
+                color: 0xf59e0b,
                 transparent: true,
-                opacity: 0.3
+                opacity: 0.4
             });
 
             const line = new THREE.Line(geometry, material);
@@ -384,22 +461,22 @@ function render3DCloud(points, seedWords) {
         }
     }
 
-    // Ambient particles
+    // Ambient particles - plus subtils
     const particleGeometry = new THREE.BufferGeometry();
-    const particleCount = 200;
+    const particleCount = 150;
     const positions = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount * 3; i++) {
-        positions[i] = (Math.random() - 0.5) * 40;
+        positions[i] = (Math.random() - 0.5) * 50;
     }
 
     particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const particleMaterial = new THREE.PointsMaterial({
         color: 0x6366f1,
-        size: 0.1,
+        size: 0.08,
         transparent: true,
-        opacity: 0.5
+        opacity: 0.3
     });
 
     const particles = new THREE.Points(particleGeometry, particleMaterial);
@@ -409,8 +486,8 @@ function render3DCloud(points, seedWords) {
     function animate() {
         cloudAnimationId = requestAnimationFrame(animate);
 
-        // Rotate particles slowly
-        particles.rotation.y += 0.0005;
+        // Rotation lente des particules
+        particles.rotation.y += 0.0003;
 
         cloudControls.update();
         cloudRenderer.render(cloudScene, cloudCamera);
@@ -431,14 +508,31 @@ function createTextSprite(text, isSeed) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
-    canvas.width = 256;
-    canvas.height = 64;
+    // Résolution doublée pour du texte plus net
+    canvas.width = 512;
+    canvas.height = 128;
 
-    context.font = isSeed ? 'bold 24px Inter' : '18px Inter';
-    context.fillStyle = isSeed ? '#ffffff' : '#a0a0b0';
+    // Fond semi-transparent pour contraste
+    context.fillStyle = 'rgba(15, 15, 26, 0.6)';
+    const metrics = context.measureText(text);
+    context.font = isSeed ? 'bold 36px Inter, Arial' : '28px Inter, Arial';
+    const textWidth = context.measureText(text).width;
+    const padding = 16;
+    context.beginPath();
+    context.roundRect(
+        (512 - textWidth) / 2 - padding,
+        isSeed ? 30 : 36,
+        textWidth + padding * 2,
+        isSeed ? 50 : 42,
+        8
+    );
+    context.fill();
+
+    // Texte
+    context.fillStyle = isSeed ? '#fbbf24' : '#c4b5fd';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.fillText(text, 128, 32);
+    context.fillText(text, 256, 58);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
@@ -450,7 +544,7 @@ function createTextSprite(text, isSeed) {
     });
 
     const sprite = new THREE.Sprite(material);
-    sprite.scale.set(4, 1, 1);
+    sprite.scale.set(isSeed ? 7 : 5, isSeed ? 1.8 : 1.3, 1);
 
     return sprite;
 }

@@ -125,6 +125,7 @@ class EmbeddingManager:
             result["comparison"] = {
                 "word": compare_word.lower(),
                 "similarity": similarity,
+                "all_values": [float(v) for v in compare_vec],
                 "biggest_differences": [
                     {
                         "dim": int(i),
@@ -264,8 +265,45 @@ class EmbeddingManager:
         current = w1
         visited = {w1}
         
-        # Liste basique de mots à éviter pour forcer des concepts plus forts
-        stop_words = {"when", "once", "then", "turned", "time", "day", "would", "could", "also", "have", "been"}
+        # Liste étendue de mots génériques à éviter (adverbes, conjonctions, pronoms, prépositions...)
+        stop_words = {
+            # Conjonctions & adverbes de liaison
+            "however", "although", "though", "even", "well", "rather", "instead",
+            "therefore", "moreover", "furthermore", "nevertheless", "nonetheless",
+            "meanwhile", "otherwise", "hence", "thus", "besides", "whereas",
+            "whereby", "wherein", "thereof", "thereby", "accordingly",
+            # Adverbes génériques
+            "also", "already", "always", "never", "often", "still", "quite",
+            "perhaps", "maybe", "really", "actually", "simply", "merely",
+            "certainly", "probably", "apparently", "essentially", "particularly",
+            "especially", "generally", "usually", "typically", "basically",
+            "obviously", "clearly", "indeed", "anyway", "somehow", "somewhat",
+            "virtually", "nearly", "almost", "entirely", "completely", "fairly",
+            "largely", "mostly", "partly", "slightly", "roughly", "highly",
+            # Verbes auxiliaires / modaux / génériques
+            "would", "could", "should", "might", "must", "shall",
+            "have", "been", "being", "become", "became", "seems", "seemed",
+            "turned", "having", "doing", "done", "went", "gone", "came",
+            "made", "said", "told", "asked", "gave", "took", "found",
+            "knew", "thought", "wanted", "needed", "tried", "used",
+            # Mots temporels génériques
+            "when", "once", "then", "time", "times", "while", "until",
+            "since", "during", "after", "before", "later", "earlier",
+            "soon", "recently", "eventually", "finally", "initially",
+            # Pronoms / déterminants
+            "itself", "themselves", "himself", "herself", "myself",
+            "another", "other", "others", "each", "every", "either",
+            "neither", "both", "many", "much", "more", "most", "some",
+            "several", "such", "same", "certain", "various", "whole",
+            # Prépositions / mots de liaison courts
+            "about", "above", "across", "against", "along", "among",
+            "around", "between", "beyond", "through", "toward", "towards",
+            "within", "without", "upon", "under",
+            # Divers mots "fourre-tout"
+            "thing", "things", "stuff", "fact", "case", "point",
+            "kind", "sort", "type", "form", "part", "side",
+            "area", "place", "number", "group", "level", "state",
+        }
 
         for _ in range(max_steps):
             if current == w2:

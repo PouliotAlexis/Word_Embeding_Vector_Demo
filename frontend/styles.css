@@ -1389,6 +1389,41 @@ input[type="checkbox"] {
     background-clip: text;
 }
 
+.heatmap-comparison {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-md);
+    justify-content: center;
+}
+
+.heatmap-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    flex: 1;
+    max-width: 280px;
+}
+
+.heatmap-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: center;
+    font-family: var(--font-mono);
+}
+
+.heatmap-row .vector-heatmap {
+    width: 100%;
+    grid-template-columns: repeat(10, 1fr);
+}
+
+.heatmap-row .vector-heatmap .dim-cell {
+    width: 100%;
+    min-height: 16px;
+}
+
 .differences-grid {
     display: flex;
     flex-direction: column;
