@@ -29,7 +29,27 @@ const elements = {
 async function apiCall(endpoint, options = {}) {
     showLoading(true);
     try {
-        const response = await fetch(`${API_BASE}${endpoint}`, {
+        // Get current language string
+        const langSelect = document.getElementById('language-select');
+        const currentLang = langSelect ? langSelect.value : 'en';
+
+        // Add language to query string for GET requests
+        const isPost = options.method === 'POST';
+        let finalEndpoint = endpoint;
+
+        if (!isPost) {
+            const separator = finalEndpoint.includes('?') ? '&' : '?';
+            finalEndpoint = `${finalEndpoint}${separator}lang=${currentLang}`;
+        } else {
+            // For POST requests, add language to body
+            if (options.body) {
+                const bodyObj = JSON.parse(options.body);
+                bodyObj.lang = currentLang;
+                options.body = JSON.stringify(bodyObj);
+            }
+        }
+
+        const response = await fetch(`${API_BASE}${finalEndpoint}`, {
             headers: { 'Content-Type': 'application/json' },
             ...options
         });

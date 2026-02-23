@@ -30,14 +30,22 @@
     <div class="bg-particles" id="particles"></div>
 
     <!-- Header -->
-    <header class="header">
-        <div class="logo">
+    <header class="header"
+        style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem;">
+        <div class="logo" style="display: flex; align-items: center; gap: 0.5rem;">
             <span class="logo-icon">🧠</span>
-            <h1>Word Embedding Explorer</h1>
+            <h1 style="margin: 0; font-size: 1.5rem;">Word Embedding Explorer</h1>
         </div>
-        <div class="header-status" id="status">
-            <span class="status-dot"></span>
-            <span class="status-text">Connecting...</span>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <select id="language-select" class="text-input"
+                style="padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.9rem; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
+                <option value="en" style="color: black;">English (EN)</option>
+                <option value="fr" style="color: black;">Français (FR)</option>
+            </select>
+            <div class="header-status" id="status">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
         </div>
     </header>
 

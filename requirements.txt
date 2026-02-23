@@ -5,3 +5,4 @@ numpy==1.26.3
 scikit-learn==1.4.0
 networkx==3.2.1
 python-multipart==0.0.6
+deep-translator>=1.11.4
