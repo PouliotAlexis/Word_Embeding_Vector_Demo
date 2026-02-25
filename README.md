@@ -11,7 +11,7 @@ pinned: false
 
 An interactive web application to visualize and explore word embeddings (GloVe/Word2Vec). This tool allows you to perform vector arithmetic, find semantic relationships, cluster words, and visualize high-dimensional data in 2D/3D.
 
-[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/PouliotAlexis/Word_Embeding_Vector_Demo) [![Demo](https://img.shields.io/badge/Demo-Active-success)](https://pouliotalexis-word-embeding-vector-demo.hf.space) ![Python](https://img.shields.io/badge/Python-3.9%2B-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green) [![wakatime](https://wakatime.com/badge/user/9038fccd-e127-4841-a208-087818900246/project/0b09aebc-5a9c-42d4-951e-0839681b139f.svg)](https://wakatime.com/badge/user/9038fccd-e127-4841-a208-087818900246/project/0b09aebc-5a9c-42d4-951e-0839681b139f)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/PouliotAlexis/Word_Embeding_Vector_Demo) [![Demo](https://img.shields.io/badge/Demo-Active-success)](https://pouliotalexis-word-embeding-vector-demo.hf.space) ![Python](https://img.shields.io/badge/Python-3.9%2B-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green) [![wakatime](https://wakatime.com/badge/github/PouliotAlexis/Word_Embeding_Vector_Demo.svg)](https://wakatime.com/badge/github/PouliotAlexis/Word_Embeding_Vector_Demo)
 
 ## ✨ Features
 
